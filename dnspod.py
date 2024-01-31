@@ -87,15 +87,23 @@ if __name__ == '__main__':
     # 获取DNS记录
     info = build_info(cloud)
 
-    # 获取最新优选IP
-    ip_addresses_str = get_cf_speed_test_ip()
-    ip_addresses = ip_addresses_str.split(',')
+    # 检查info列表是否为空
+    if info:
+        # 获取最新优选IP
+        ip_addresses_str = get_cf_speed_test_ip()
+        ip_addresses = ip_addresses_str.split(',')
 
-    pushplus_content = []
-    # 遍历 IP 地址列表
-    for index, ip_address in enumerate(ip_addresses):
-        # 执行 DNS 变更
-        dns = change_dns(cloud, info[index]["recordId"], ip_address)
-        pushplus_content.append(dns)
-
+        pushplus_content = []
+        # 遍历 IP 地址列表
+        for index, ip_address in enumerate(ip_addresses):
+            # 检查索引是否在有效范围内
+            if index < len(info):
+                # 执行 DNS 变更
+                dns = change_dns(cloud, info[index]["recordId"], ip_address)
+                pushplus_content.append(dns)
+            else:
+                print("Index out of range: Skipping DNS change for IP", ip_address)
+    else:
+        print("No DNS records found.")
+    
     pushplus('\n'.join(pushplus_content))
